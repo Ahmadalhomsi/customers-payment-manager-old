@@ -1,8 +1,10 @@
 "use client"; // Add this to the top for client-side functionality in Next.js
 
 import { useState } from 'react';
-import { Modal, Button, Input, Spacer } from '@nextui-org/react';
-import {ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, RadioGroup, Radio} from "@nextui-org/react";
+import { Modal, Button, Input, Spacer, DatePicker } from '@nextui-org/react'; // Ensure you import DatePicker
+import { ModalContent } from "@nextui-org/react";
+import { MailIcon } from '@/components/MailIcon';
+
 
 
 interface CustomerFormData {
@@ -33,6 +35,13 @@ export default function CustomersPage() {
     setFormData({
       ...formData,
       [name]: value,
+    });
+  };
+
+  const handleDateChange = (name: string, value: Date) => {
+    setFormData({
+      ...formData,
+      [name]: value, // Format date as YYYY-MM-DD
     });
   };
 
@@ -69,6 +78,9 @@ export default function CustomersPage() {
               fullWidth
               value={formData.email}
               onChange={handleChange}
+              endContent={
+                <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+              }
             />
             <Spacer y={1} />
             <Input
@@ -91,22 +103,16 @@ export default function CustomersPage() {
               onChange={handleChange}
             />
             <Spacer y={1} />
-            <Input
-              type="date"
+            <DatePicker
               label="Payment Start Date"
-              name="paymentStart"
-              fullWidth
-              value={formData.paymentStart}
-              onChange={handleChange}
+              className="max-w-[284px]"
+              onChange={(date) => handleDateChange('paymentStart', date as unknown as Date)}
             />
             <Spacer y={1} />
-            <Input
-              type="date"
+            <DatePicker
               label="Payment End Date"
-              name="paymentEnd"
-              fullWidth
-              value={formData.paymentEnd}
-              onChange={handleChange}
+              className="max-w-[284px]"
+              onChange={(date) => handleDateChange('paymentEnd', date as unknown as Date)}
             />
             <Spacer y={1} />
             <Button onPress={handleSubmit}>Submit</Button>
