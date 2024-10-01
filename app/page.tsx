@@ -5,13 +5,12 @@ import { Modal, Button, Input, Spacer, DatePicker } from '@nextui-org/react'; //
 import { ModalContent } from "@nextui-org/react";
 import { MailIcon } from '@/components/MailIcon';
 
-
-
 interface CustomerFormData {
   name: string;
   email: string;
   phone: string;
   price: string;
+  currency: string;
   paymentStart: string;
   paymentEnd: string;
 }
@@ -23,6 +22,7 @@ export default function CustomersPage() {
     email: '',
     phone: '',
     price: '',
+    currency: 'USD', // Set default currency
     paymentStart: '',
     paymentEnd: '',
   });
@@ -30,7 +30,7 @@ export default function CustomersPage() {
   const openModal = () => setVisible(true);
   const closeModal = () => setVisible(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -41,7 +41,7 @@ export default function CustomersPage() {
   const handleDateChange = (name: string, value: Date) => {
     setFormData({
       ...formData,
-      [name]: value, // Format date as YYYY-MM-DD
+      [name]: value.toISOString().split('T')[0], // Format date as YYYY-MM-DD
     });
   };
 
@@ -101,6 +101,23 @@ export default function CustomersPage() {
               fullWidth
               value={formData.price}
               onChange={handleChange}
+              endContent={
+                <div className="flex items-center">
+                  <label className="sr-only" htmlFor="currency">
+                    Currency
+                  </label>
+                  <select
+                    className="outline-none border-0 bg-transparent text-default-400 text-small"
+                    id="currency"
+                    name="currency"
+                    value={formData.currency}
+                    onChange={handleChange}
+                  >
+                    <option value="TL">₺</option>
+                    <option value="USD">$</option>
+                  </select>
+                </div>
+              }
             />
             <Spacer y={1} />
             <DatePicker
