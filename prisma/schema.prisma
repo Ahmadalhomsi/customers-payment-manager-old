@@ -29,7 +29,7 @@ model customer {
   phone String?
 
   // Relations
-  service service[] @relation("CustomerToService")
+  services service[] @relation("CustomerToService")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
