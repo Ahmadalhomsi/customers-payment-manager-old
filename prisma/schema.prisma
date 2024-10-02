@@ -27,18 +27,28 @@ model customer {
   name  String
   email String  @unique
   phone String?
-  services service[]
+
+  // Relations
+  service service[] @relation("CustomerToService")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model service { // can more than one customer have the same service?
-  id          String    @id @default(cuid())
+model service {
+  id          String @id @default(cuid())
   name        String
   description String
-  price       Float
-  customers   customer[]
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  paymentType String // Monthly, Yearly
+  periodPrice Float
+
+  startingDate DateTime
+  endingDate   DateTime
+
+  // Relations
+  customerID String
+  customers  customer @relation("CustomerToService", fields: [customerID], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
