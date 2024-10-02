@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Modal, Button, Input, Spacer, DatePicker } from '@nextui-org/react'; // Ensure you import DatePicker
 import { ModalContent } from "@nextui-org/react";
 import { MailIcon } from '@/components/MailIcon';
+import axios from 'axios';
 
 interface CustomerFormData {
   name: string;
@@ -41,12 +42,18 @@ export default function CustomersPage() {
   const handleDateChange = (name: string, value: Date) => {
     setFormData({
       ...formData,
-      [name]: value.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      [name]: value, // Format date as YYYY-MM-DD
     });
   };
 
-  const handleSubmit = () => {
-    // Handle form submission logic here (e.g., POST request)
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post('/api/customers', formData);
+      console.log('Customer created successfully:', response.data);
+    } catch (error) {
+      console.error('Error creating customer:', error);
+    }
+
     console.log(formData);
     closeModal();
   };

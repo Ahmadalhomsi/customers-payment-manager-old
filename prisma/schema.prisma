@@ -41,6 +41,7 @@ model service {
   description String
   paymentType String // Monthly, Yearly
   periodPrice Float
+  currency    String @default("TL")
 
   startingDate DateTime
   endingDate   DateTime
