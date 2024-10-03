@@ -1,14 +1,13 @@
-"use client";
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import {
-  Modal, Button, Input, Spacer, DatePicker, Table, Select, SelectItem,
-  TableColumn, TableHeader, TableBody, TableRow, TableCell, Tooltip
+  Modal, Button, Input, Spacer, Table, Select, SelectItem,
+  TableColumn, TableHeader, TableBody, TableRow, TableCell, Tooltip, DatePicker
 } from '@nextui-org/react';
 import { ModalContent } from "@nextui-org/react";
 import axios from 'axios';
-
 import { Edit, Trash2, Plus, Eye } from "lucide-react";
-
 
 interface Customer {
   id: string;
@@ -51,6 +50,7 @@ export default function CustomersPage() {
   const [serviceModalVisible, setServiceModalVisible] = useState(false);
   const [servicesViewModalVisible, setServicesViewModalVisible] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [formData, setFormData] = useState<CustomerFormData>({ name: '', email: '', phone: '' });
   const [serviceFormData, setServiceFormData] = useState<ServiceFormData>({
     name: '',
@@ -104,12 +104,38 @@ export default function CustomersPage() {
 
   const closeDeleteConfirmModal = () => setDeleteConfirmVisible(false);
 
-  const openServiceModal = (customer: Customer) => {
+  const openServiceModal = (customer: Customer, service: Service | null = null) => {
     setSelectedCustomer(customer);
+    if (service) {
+      setSelectedService(service);
+      setServiceFormData({
+        name: service.name,
+        description: service.description,
+        paymentType: service.paymentType,
+        periodPrice: service.periodPrice,
+        currency: service.currency,
+        startingDate: service.startingDate,
+        endingDate: service.endingDate
+      });
+    } else {
+      setSelectedService(null);
+      setServiceFormData({
+        name: '',
+        description: '',
+        paymentType: 'Monthly',
+        periodPrice: 0,
+        currency: 'TL',
+        startingDate: '',
+        endingDate: ''
+      });
+    }
     setServiceModalVisible(true);
   };
 
-  const closeServiceModal = () => setServiceModalVisible(false);
+  const closeServiceModal = () => {
+    setServiceModalVisible(false);
+    setSelectedService(null);
+  };
 
   const openServicesViewModal = async (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -137,7 +163,7 @@ export default function CustomersPage() {
   const handleDateChange = (name: string, value: any) => {
     setServiceFormData({
       ...serviceFormData,
-      [name]: value.toISOString().split('T')[0],
+      [name]: value,
     });
   };
 
@@ -170,8 +196,23 @@ export default function CustomersPage() {
   const handleServiceSubmit = async () => {
     try {
       if (selectedCustomer) {
-        await axios.post(`/api/services`, { ...serviceFormData, customerID: selectedCustomer.id });
+        if (selectedService) {
+          // Edit existing service
+          await axios.put(`/api/services/${selectedService.id}`, {
+            ...serviceFormData,
+            customerID: selectedCustomer.id
+          });
+        } else {
+          // Add new service
+          await axios.post(`/api/services`, {
+            ...serviceFormData,
+            customerID: selectedCustomer.id
+          });
+        }
         closeServiceModal();
+        if (servicesViewModalVisible) {
+          await fetchServices(selectedCustomer.id);
+        }
       }
     } catch (error) {
       console.log('Error adding/updating service:', error);
@@ -249,11 +290,11 @@ export default function CustomersPage() {
         <ModalContent>
           <div style={{ padding: '20px' }}>
             <h2>{selectedCustomer ? 'Edit Customer' : 'Create Customer'}</h2>
-            <Input label="Name" placeholder="Enter name" name="name" fullWidth value={formData.name} onChange={handleChange} />
+            <Input label="Name" placeholder="Enter name" name="name" value={formData.name} onChange={handleChange} />
             <Spacer y={1} />
-            <Input label="Email" placeholder="Enter email" name="email" fullWidth value={formData.email} onChange={handleChange} />
+            <Input label="Email" placeholder="Enter email" name="email" value={formData.email} onChange={handleChange} />
             <Spacer y={1} />
-            <Input label="Phone" placeholder="Enter phone" name="phone" fullWidth value={formData.phone} onChange={handleChange} />
+            <Input label="Phone" placeholder="Enter phone" name="phone" value={formData.phone} onChange={handleChange} />
             <Spacer y={1} />
             <Button onPress={handleCustomerSubmit}>Submit</Button>
           </div>
@@ -272,15 +313,14 @@ export default function CustomersPage() {
         </ModalContent>
       </Modal>
 
-      {/* Add Service Modal */}
+      {/* Add/Edit Service Modal */}
       <Modal isOpen={serviceModalVisible} onClose={closeServiceModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
-            <h2>Add Service for {selectedCustomer?.name}</h2>
+            <h2>{selectedService ? 'Edit' : 'Add'} Service for {selectedCustomer?.name}</h2>
             <Input
               label="Service Name"
               placeholder="Enter service name"
-              fullWidth
               value={serviceFormData.name}
               onChange={(e) => handleServiceChange('name', e.target.value)}
             />
@@ -288,7 +328,6 @@ export default function CustomersPage() {
             <Input
               label="Description"
               placeholder="Enter service description"
-              fullWidth
               value={serviceFormData.description}
               onChange={(e) => handleServiceChange('description', e.target.value)}
             />
@@ -297,7 +336,6 @@ export default function CustomersPage() {
               type="number"
               label="Price"
               placeholder="Enter price"
-              fullWidth
               value={serviceFormData.periodPrice.toString()}
               onChange={(e) => handleServiceChange('periodPrice', parseFloat(e.target.value))}
               endContent={
@@ -346,9 +384,9 @@ export default function CustomersPage() {
       </Modal>
 
       {/* View Services Modal */}
-      <Modal isOpen={servicesViewModalVisible} onClose={closeServicesViewModal} size="xl">
+      <Modal isOpen={servicesViewModalVisible} onClose={closeServicesViewModal} size="5xl">
         <ModalContent>
-          <div style={{ padding: '20px' }}>
+          <div style={{ padding: '20px', maxWidth: '100%', overflowX: 'auto' }}>
             <h2>Services for {selectedCustomer?.name}</h2>
             <Table aria-label="Services Table">
               <TableHeader>
@@ -358,6 +396,7 @@ export default function CustomersPage() {
                 <TableColumn>Price</TableColumn>
                 <TableColumn>Start Date</TableColumn>
                 <TableColumn>End Date</TableColumn>
+                <TableColumn>Actions</TableColumn>
               </TableHeader>
               <TableBody>
                 {services.map((service) => (
@@ -368,6 +407,19 @@ export default function CustomersPage() {
                     <TableCell>{`${service.periodPrice} ${service.currency}`}</TableCell>
                     <TableCell>{new Date(service.startingDate).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(service.endingDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Button
+                        isIconOnly
+                        color="primary"
+                        variant="light"
+                        onPress={() => {
+                          closeServicesViewModal();
+                          openServiceModal(selectedCustomer!, service);
+                        }}
+                      >
+                        <Edit size={18} />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -375,6 +427,7 @@ export default function CustomersPage() {
           </div>
         </ModalContent>
       </Modal>
+
     </div>
   );
 }
