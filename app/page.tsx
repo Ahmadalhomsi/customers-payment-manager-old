@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Modal, Button, Input, Spacer, DatePicker, Table, Select, SelectItem,
-  TableColumn, TableHeader, TableBody, TableRow, TableCell
+  TableColumn, TableHeader, TableBody, TableRow, TableCell, Tooltip
 } from '@nextui-org/react';
 import { ModalContent } from "@nextui-org/react";
 import axios from 'axios';
+import { Edit, Trash2, Plus, Eye } from "lucide-react";
+
 
 interface Customer {
   id: string;
@@ -177,7 +179,7 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <Button onPress={() => openModal(null)}>Create Customer</Button>
+      <Button onPress={() => openModal(null)} style={{ margin: 20 }}>Create Customer</Button>
 
       <Table aria-label="Customers Table">
         <TableHeader>
@@ -193,10 +195,48 @@ export default function CustomersPage() {
               <TableCell>{customer.email}</TableCell>
               <TableCell>{customer.phone}</TableCell>
               <TableCell>
-                <Button onPress={() => openModal(customer)}>Edit</Button>
-                <Button color="warning" onPress={() => openDeleteConfirmModal(customer)}>Delete</Button>
-                <Button onPress={() => openServiceModal(customer)}>Add Service</Button>
-                <Button onPress={() => openServicesViewModal(customer)}>View Services</Button>
+                <div className="flex items-center gap-2">
+                  <Tooltip content="Edit customer">
+                    <Button
+                      isIconOnly
+                      color="primary"
+                      variant="light"
+                      onPress={() => openModal(customer)}
+                    >
+                      <Edit size={18} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Delete customer">
+                    <Button
+                      isIconOnly
+                      color="danger"
+                      variant="light"
+                      onPress={() => openDeleteConfirmModal(customer)}
+                    >
+                      <Trash2 size={18} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Add service">
+                    <Button
+                      isIconOnly
+                      color="success"
+                      variant="light"
+                      onPress={() => openServiceModal(customer)}
+                    >
+                      <Plus size={18} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="View services">
+                    <Button
+                      isIconOnly
+                      color="secondary"
+                      variant="light"
+                      onPress={() => openServicesViewModal(customer)}
+                    >
+                      <Eye size={18} />
+                    </Button>
+                  </Tooltip>
+                </div>
               </TableCell>
             </TableRow>
           ))}
