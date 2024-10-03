@@ -1,74 +1,84 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Modal, Button, Input, Spacer, DatePicker, Table, Popover, TableColumn, TableHeader, TableBody, TableRow, TableCell } from '@nextui-org/react';
+import {
+  Modal, Button, Input, Spacer, DatePicker, Table, Popover, TableColumn, TableHeader, TableBody, TableRow, TableCell,
+  Select, SelectItem, DateValue
+} from '@nextui-org/react';
 import { ModalContent } from "@nextui-org/react";
 import { MailIcon } from '@/components/MailIcon';
 import axios from 'axios';
+
 
 interface Customer {
   id: string;
   name: string;
   email: string;
   phone: string;
-  price: string;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  paymentType: string;
+  periodPrice: number;
   currency: string;
-  paymentStart: string;
-  paymentEnd: string;
+  startingDate: string;
+  endingDate: string;
+  customerID: string;
 }
 
 interface CustomerFormData extends Omit<Customer, 'id'> { }
+interface ServiceFormData extends Omit<Service, 'id' | 'customerID'> { }
+
+const paymentTypes = [
+  { value: 'Monthly', label: 'Monthly' },
+  { value: 'Yearly', label: 'Yearly' },
+];
+
+const currencies = [
+  { value: 'TL', label: '₺' },
+  { value: 'USD', label: '$' },
+  { value: 'EUR', label: '€' },
+];
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [visible, setVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [serviceModalVisible, setServiceModalVisible] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [formData, setFormData] = useState<CustomerFormData>({
+  const [formData, setFormData] = useState<CustomerFormData>({ name: '', email: '', phone: '' });
+  const [serviceFormData, setServiceFormData] = useState<ServiceFormData>({
     name: '',
-    email: '',
-    phone: '',
-    price: '',
-    currency: 'USD',
-    paymentStart: '',
-    paymentEnd: '',
+    description: '',
+    paymentType: 'Monthly',
+    periodPrice: 0,
+    currency: 'TL',
+    startingDate: '',
+    endingDate: ''
   });
 
-  // Fetch customers on component load
   useEffect(() => {
-    async function fetchCustomers() {
-      try {
-        const response = await axios.get('/api/customers');
-        setCustomers(response.data);
-      } catch (error) {
-        console.error('Error fetching customers:', error);
-      }
-    }
     fetchCustomers();
   }, []);
 
+  async function fetchCustomers() {
+    try {
+      const response = await axios.get('/api/customers');
+      setCustomers(response.data);
+    } catch (error) {
+      console.log('Error fetching customers:', error);
+    }
+  }
+
   const openModal = (customer: Customer | null = null) => {
     if (customer) {
-      setFormData({
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        price: customer.price,
-        currency: customer.currency,
-        paymentStart: customer.paymentStart,
-        paymentEnd: customer.paymentEnd,
-      });
+      setFormData({ name: customer.name, email: customer.email, phone: customer.phone });
       setSelectedCustomer(customer);
     } else {
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        price: '',
-        currency: 'USD',
-        paymentStart: '',
-        paymentEnd: '',
-      });
+      setFormData({ name: '', email: '', phone: '' });
       setSelectedCustomer(null);
     }
     setVisible(true);
@@ -76,12 +86,19 @@ export default function CustomersPage() {
 
   const closeModal = () => setVisible(false);
 
-  const openDeleteConfirm = (customer: Customer) => {
+  const openDeleteConfirmModal = (customer: Customer) => {
     setSelectedCustomer(customer);
     setDeleteConfirmVisible(true);
   };
 
-  const closeDeleteConfirm = () => setDeleteConfirmVisible(false);
+  const closeDeleteConfirmModal = () => setDeleteConfirmVisible(false);
+
+  const openServiceModal = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setServiceModalVisible(true);
+  };
+
+  const closeServiceModal = () => setServiceModalVisible(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -91,53 +108,75 @@ export default function CustomersPage() {
     });
   };
 
-  const handleDateChange = (name: string, value: Date) => {
-    setFormData({
-      ...formData,
+  const handleServiceChange = (name: string, value: string | number) => {
+    setServiceFormData({
+      ...serviceFormData,
       [name]: value,
     });
   };
 
-  const handleSubmit = async () => {
-    try {
-      if (selectedCustomer) {
-        // Update customer
-        await axios.put(`/api/customers/${selectedCustomer.id}`, formData);
-        setCustomers((prev) => prev.map(c => c.id === selectedCustomer.id ? { ...selectedCustomer, ...formData } : c));
-      } else {
-        // Create customer
-        const response = await axios.post('/api/customers', formData);
-        setCustomers([...customers, response.data]);
-      }
-    } catch (error) {
-      console.error('Error saving customer:', error);
-    }
-    closeModal();
+  const handleDateChange = (name: string, value: DateValue) => {
+    const newDate = value.toString();
+
+    setServiceFormData({
+      ...serviceFormData,
+      [name]: newDate, // Convert DateValue to ISO string
+    });
   };
 
-  const handleDelete = async () => {
+
+  const handleCustomerSubmit = async () => {
     try {
       if (selectedCustomer) {
+        await axios.put(`/api/customers/${selectedCustomer.id}`, formData);
+      } else {
+        await axios.post('/api/customers', formData);
+      }
+      fetchCustomers();
+      closeModal();
+    } catch (error) {
+      console.log('Error submitting customer:', error);
+    }
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (selectedCustomer) {
+      try {
         await axios.delete(`/api/customers/${selectedCustomer.id}`);
-        setCustomers(customers.filter(c => c.id !== selectedCustomer.id));
+        fetchCustomers();
+        closeDeleteConfirmModal();
+      } catch (error) {
+        console.log('Error deleting customer:', error);
+      }
+    }
+  };
+
+  const handleServiceSubmit = async () => {
+    console.log('serviceFormData:', serviceFormData);
+    console.log('selectedCustomer:', selectedCustomer);
+    const formattedServiceFormData = {
+      ...serviceFormData,
+      customerID: selectedCustomer?.id
+    };
+    try {
+      if (selectedCustomer) {
+        await axios.post(`/api/services`, formattedServiceFormData);
+        closeServiceModal();
       }
     } catch (error) {
-      console.error('Error deleting customer:', error);
+      console.log('Error adding/updating service:', error);
     }
-    closeDeleteConfirm();
   };
 
   return (
     <div>
       <Button onPress={() => openModal(null)}>Create Customer</Button>
 
-      {/* Customer Table */}
       <Table aria-label="Customers Table">
         <TableHeader>
           <TableColumn>Name</TableColumn>
           <TableColumn>Email</TableColumn>
           <TableColumn>Phone</TableColumn>
-          <TableColumn>Price</TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
         <TableBody>
@@ -146,48 +185,117 @@ export default function CustomersPage() {
               <TableCell>{customer.name}</TableCell>
               <TableCell>{customer.email}</TableCell>
               <TableCell>{customer.phone}</TableCell>
-              <TableCell>{customer.price} {customer.currency}</TableCell>
               <TableCell>
                 <Button onPress={() => openModal(customer)}>Edit</Button>
-                <Button color="warning" onPress={() => openDeleteConfirm(customer)}>Delete</Button>
-                <Button onPress={() => alert(`Service for ${customer.name}`)}>Add Service</Button>
+                <Button color="warning" onPress={() => openDeleteConfirmModal(customer)}>Delete</Button>
+                <Button onPress={() => openServiceModal(customer)}>Add Service</Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      {/* Customer Modal */}
       <Modal isOpen={visible} onClose={closeModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
             <h2>{selectedCustomer ? 'Edit Customer' : 'Create Customer'}</h2>
-            <Input label="Customer Name" placeholder="Enter name" name="name" fullWidth value={formData.name} onChange={handleChange} />
+            <Input label="Name" placeholder="Enter name" name="name" fullWidth value={formData.name} onChange={handleChange} />
             <Spacer y={1} />
-            <Input type="email" label="Email" placeholder="Enter email" name="email" fullWidth value={formData.email} onChange={handleChange} endContent={
-              <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-            } />
+            <Input label="Email" placeholder="Enter email" name="email" fullWidth value={formData.email} onChange={handleChange} />
             <Spacer y={1} />
-            <Input type="tel" label="Phone Number" placeholder="Enter phone number" name="phone" fullWidth value={formData.phone} onChange={handleChange} />
+            <Input label="Phone" placeholder="Enter phone" name="phone" fullWidth value={formData.phone} onChange={handleChange} />
             <Spacer y={1} />
-            <Input type="number" label="Price" placeholder="Enter price" name="price" fullWidth value={formData.price} onChange={handleChange} />
-            <Spacer y={1} />
-            <DatePicker label="Payment Start Date" onChange={(date) => handleDateChange('paymentStart', date as unknown as Date)} />
-            <Spacer y={1} />
-            <DatePicker label="Payment End Date" onChange={(date) => handleDateChange('paymentEnd', date as unknown as Date)} />
-            <Spacer y={1} />
-            <Button onPress={handleSubmit}>{selectedCustomer ? 'Update' : 'Create'}</Button>
+            <Button onPress={handleCustomerSubmit}>Submit</Button>
           </div>
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation */}
-      <Modal isOpen={deleteConfirmVisible} onClose={closeDeleteConfirm}>
+      <Modal isOpen={deleteConfirmVisible} onClose={closeDeleteConfirmModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
-            <h2>Are you sure you want to delete this customer?</h2>
-            <Button onPress={handleDelete}>Yes, delete</Button>
-            <Button onPress={closeDeleteConfirm}>Cancel</Button>
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete {selectedCustomer?.name}?</p>
+            <Button color="danger" onPress={handleDeleteCustomer}>Delete</Button>
+            <Button onPress={closeDeleteConfirmModal}>Cancel</Button>
+          </div>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={serviceModalVisible} onClose={closeServiceModal}>
+        <ModalContent>
+          <div style={{ padding: '20px' }}>
+            <h2>Add Service for {selectedCustomer?.name}</h2>
+            <Input
+              label="Service Name"
+              placeholder="Enter service name"
+              fullWidth
+              value={serviceFormData.name}
+              onChange={(e) => handleServiceChange('name', e.target.value)}
+            />
+            <Spacer y={1} />
+            <Input
+              label="Description"
+              placeholder="Enter service description"
+              fullWidth
+              value={serviceFormData.description}
+              onChange={(e) => handleServiceChange('description', e.target.value)}
+            />
+            <Spacer y={1} />
+            <Input
+              type="text"
+              label="Price"
+              placeholder="Enter price"
+              fullWidth
+              value={new Intl.NumberFormat().format(serviceFormData.periodPrice)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value.replace(/,/g, ''));
+                handleServiceChange('periodPrice', isNaN(value) ? '' : value);
+              }}
+              endContent={
+                <div className="flex items-center">
+                  <Select
+                    className="outline-none border-0 bg-transparent text-default-400 text-small"
+                    id="currency"
+                    name="currency"
+                    value={serviceFormData.currency}
+                    onChange={(e) => handleServiceChange('currency', e.target.value)}
+                    style={{ width: '40px' }} // Set a fixed width
+                  >
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.value} value={currency.value}>
+                        {currency.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              }
+            />
+
+            <Spacer y={1} />
+            <Select
+              label="Payment Type"
+              placeholder="Select payment type"
+              value={serviceFormData.paymentType}
+              onChange={(e) => handleServiceChange('paymentType', e.target.value)}
+            >
+              {paymentTypes.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </Select>
+            <Spacer y={1} />
+            <DatePicker
+              label="Starting Date"
+              onChange={(date) => handleDateChange('startingDate', date)}
+            />
+            <Spacer y={1} />
+            <DatePicker
+              label="Ending Date"
+              onChange={(date) => handleDateChange('endingDate', date)}
+            />
+            <Spacer y={1} />
+            <Button onPress={handleServiceSubmit}>Submit</Button>
           </div>
         </ModalContent>
       </Modal>
