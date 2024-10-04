@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Modal, Button, Input, Spacer, Table, Select, SelectItem,
-  TableColumn, TableHeader, TableBody, TableRow, TableCell, Tooltip, DatePicker
+  TableColumn, TableHeader, TableBody, TableRow, TableCell, Tooltip, DatePicker,
+  Spinner
 } from '@nextui-org/react';
 import { ModalContent } from "@nextui-org/react";
 import axios from 'axios';
@@ -66,6 +67,7 @@ export default function CustomersPage() {
     startingDate: parseDate(format(today, 'yyyy-MM-dd')),
     endingDate: parseDate(format(today, 'yyyy-MM-dd'))
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchCustomers();
@@ -75,6 +77,7 @@ export default function CustomersPage() {
     try {
       const response = await axios.get('/api/customers');
       setCustomers(response.data);
+      setLoading(false);
     } catch (error) {
       console.log('Error fetching customers:', error);
     }
@@ -267,7 +270,9 @@ export default function CustomersPage() {
           <TableColumn>Phone</TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
-        <TableBody>
+        <TableBody loadingContent={<Spinner />}
+          isLoading={loading}
+        >
           {customers.map((customer) => (
             <TableRow key={customer.id}>
               <TableCell>{customer.name}</TableCell>
@@ -453,7 +458,7 @@ export default function CustomersPage() {
                 <TableColumn>End Date</TableColumn>
                 <TableColumn>Actions</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody loadingContent={<Spinner />}>
                 {services.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell>{service.name}</TableCell>
