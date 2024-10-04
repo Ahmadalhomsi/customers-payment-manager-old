@@ -8,7 +8,7 @@ import {
 import { ModalContent } from "@nextui-org/react";
 import axios from 'axios';
 import { Edit, Trash2, Plus, Eye } from "lucide-react";
-import { format } from 'date-fns'; // Optional, using date-fns for formatting
+import { format, parseISO } from 'date-fns'; // Optional, using date-fns for formatting
 import { DateValue, parseDate, getLocalTimeZone } from "@internationalized/date";
 
 
@@ -108,6 +108,11 @@ export default function CustomersPage() {
 
   const closeDeleteConfirmModal = () => setDeleteConfirmVisible(false);
 
+  function formatDate(dateTime) {
+  const date = new Date(dateTime);
+  return date.toISOString().split('T')[0];
+}
+
   const openServiceModal = (customer: Customer, service: Service | null = null) => {
     setSelectedCustomer(customer);
     if (service) {
@@ -121,8 +126,8 @@ export default function CustomersPage() {
         paymentType: service.paymentType,
         periodPrice: service.periodPrice,
         currency: service.currency,
-        startingDate: service.startingDate,
-        endingDate: service.endingDate
+        startingDate: parseDate(format(service.startingDate.toString().split('T')[0], 'yyyy-MM-dd')),
+        endingDate: parseDate(format(service.endingDate.toString().split('T')[0], 'yyyy-MM-dd'))
       });
     } else {
       setSelectedService(null);
