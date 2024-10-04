@@ -319,7 +319,7 @@ export default function CustomersPage() {
       <Modal isOpen={visible} onClose={closeModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
-            <h2>{selectedCustomer ? 'Edit Customer' : 'Create Customer'}</h2>
+            <h2 style={{ margin: 6 }}>{selectedCustomer ? 'Edit Customer' : 'Create Customer'}</h2>
             <Input label="Name" placeholder="Enter name" name="name" value={formData.name} onChange={handleChange} />
             <Spacer y={1} />
             <Input label="Email" placeholder="Enter email" name="email" value={formData.email} onChange={handleChange} />
@@ -336,8 +336,8 @@ export default function CustomersPage() {
         <ModalContent>
           <div style={{ padding: '20px' }}>
             <h2>Confirm Delete</h2>
-            <p>Are you sure you want to delete {selectedCustomer?.name}?</p>
-            <Button color="danger" onPress={handleDeleteCustomer}>Delete</Button>
+            <p style={{ margin: 6 }}>Are you sure you want to delete {selectedCustomer?.name}?</p>
+            <Button color="danger" onPress={handleDeleteCustomer} style={{ marginRight: 6 }}>Delete</Button>
             <Button onPress={closeCustomerDeleteConfirmModal}>Cancel</Button>
           </div>
         </ModalContent>
@@ -348,7 +348,7 @@ export default function CustomersPage() {
         <ModalContent>
           <div style={{ padding: '20px' }}>
             <h2>Confirm Delete</h2>
-            <p>Are you sure you want to delete {selectedService?.name}?</p>
+            <p style={{ margin: 6 }}>Are you sure you want to delete {selectedService?.name}?</p>
             <Button color="danger" onPress={handleDeleteService}>Delete</Button>
             <Button onPress={closeServiceDeleteConfirmModal}>Cancel</Button>
           </div>
@@ -359,7 +359,7 @@ export default function CustomersPage() {
       <Modal isOpen={serviceModalVisible} onClose={closeServiceModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
-            <h2>{selectedService ? 'Edit' : 'Add'} Service for {selectedCustomer?.name}</h2>
+            <h2 style={{ margin: 6 }}>{selectedService ? 'Edit' : 'Add'} Service for {selectedCustomer?.name}</h2>
             <Input
               label="Service Name"
               placeholder="Enter service name"
@@ -374,9 +374,23 @@ export default function CustomersPage() {
               onChange={(e) => handleServiceChange('description', e.target.value)}
             />
             <Spacer y={1} />
+            <Select
+              label="Payment Type"
+              placeholder="Select payment type"
+              value={serviceFormData.paymentType}
+              defaultSelectedKeys={['Monthly']}
+              onChange={(e) => handleServiceChange('paymentType', e.target.value)}
+            >
+              {paymentTypes.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </Select>
+            <Spacer y={1} />
             <Input
               type="number"
-              label="Price"
+              label={`${serviceFormData.paymentType} Price`}
               placeholder="Enter price"
               value={serviceFormData.periodPrice.toString()}
               onChange={(e) => handleServiceChange('periodPrice', parseFloat(e.target.value))}
@@ -400,20 +414,6 @@ export default function CustomersPage() {
               }
             />
             <Spacer y={1} />
-            <Select
-              label="Payment Type"
-              placeholder="Select payment type"
-              value={serviceFormData.paymentType}
-              defaultSelectedKeys={['Monthly']}
-              onChange={(e) => handleServiceChange('paymentType', e.target.value)}
-            >
-              {paymentTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
-            </Select>
-            <Spacer y={1} />
             <DatePicker
               label="Starting Date"
               value={serviceFormData.startingDate}
@@ -435,7 +435,7 @@ export default function CustomersPage() {
       <Modal isOpen={servicesViewModalVisible} onClose={closeServicesViewModal} size="5xl">
         <ModalContent>
           <div style={{ padding: '20px', maxWidth: '100%', overflowX: 'auto' }}>
-            <h2>Services for {selectedCustomer?.name}</h2>
+            <h2 style={{ margin: 6 }}>Services for {selectedCustomer?.name}</h2>
             <Table aria-label="Services Table">
               <TableHeader>
                 <TableColumn>Name</TableColumn>
