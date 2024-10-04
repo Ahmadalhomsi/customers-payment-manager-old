@@ -5,17 +5,15 @@ const prisma = new PrismaClient();
 
 export async function GET(req, { params }) {
     const { id } = params;
-
     try {
-        const service = await prisma.service.findUnique({
-            where: { id: id },
+        const services = await prisma.service.findMany({
+            where: { customerID: id },
         });
-        if (service) {
-            return NextResponse.json(service, { status: 200 });
-        } else {
-            return NextResponse.json({ error: 'service not found' }, { status: 404 });
-        }
+        return NextResponse.json(services, { status: 200 });
     } catch (error) {
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
         return NextResponse.json({ error: 'Failed to fetch service' }, { status: 500 });
     }
 }

@@ -82,7 +82,7 @@ export default function CustomersPage() {
 
   async function fetchServices(customerId: string) {
     try {
-      const response = await axios.get(`/api/services?customerId=${customerId}`);
+      const response = await axios.get(`/api/services/${customerId}`);
       setServices(response.data);
     } catch (error) {
       console.log('Error fetching services:', error);
