@@ -49,7 +49,8 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [visible, setVisible] = useState(false);
-  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [deleteCustomerConfirmVisible, setDeleteCustomerConfirmVisible] = useState(false);
+  const [deleteServiceConfirmVisible, setDeleteServiceConfirmVisible] = useState(false);
   const [serviceModalVisible, setServiceModalVisible] = useState(false);
   const [servicesViewModalVisible, setServicesViewModalVisible] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -101,12 +102,19 @@ export default function CustomersPage() {
 
   const closeModal = () => setVisible(false);
 
-  const openDeleteConfirmModal = (customer: Customer) => {
+  const openDeleteCustomerConfirmModal = (customer: Customer) => {
     setSelectedCustomer(customer);
-    setDeleteConfirmVisible(true);
+    setDeleteCustomerConfirmVisible(true);
   };
 
-  const closeDeleteConfirmModal = () => setDeleteConfirmVisible(false);
+  const openDeleteServiceConfirmModal = (service: Service) => {
+    setSelectedService(service);
+    setDeleteServiceConfirmVisible(true);
+  };
+
+  const closeCustomerDeleteConfirmModal = () => setDeleteCustomerConfirmVisible(false);
+
+  const closeServiceDeleteConfirmModal = () => setDeleteServiceConfirmVisible(false);
 
   const openServiceModal = (customer: Customer, service: Service | null = null) => {
     setSelectedCustomer(customer);
@@ -196,7 +204,19 @@ export default function CustomersPage() {
       try {
         await axios.delete(`/api/customers/${selectedCustomer.id}`);
         fetchCustomers();
-        closeDeleteConfirmModal();
+        closeCustomerDeleteConfirmModal();
+      } catch (error) {
+        console.log('Error deleting customer:', error);
+      }
+    }
+  };
+
+  const handleDeleteService = async () => {
+    if (selectedService) {
+      try {
+        await axios.delete(`/api/services/${selectedService.id}`);
+        fetchServices(selectedService!.id);
+        closeServiceDeleteConfirmModal();
       } catch (error) {
         console.log('Error deleting customer:', error);
       }
@@ -263,7 +283,7 @@ export default function CustomersPage() {
                       isIconOnly
                       color="danger"
                       variant="light"
-                      onPress={() => openDeleteConfirmModal(customer)}
+                      onPress={() => openDeleteCustomerConfirmModal(customer)}
                     >
                       <Trash2 size={18} />
                     </Button>
@@ -311,14 +331,26 @@ export default function CustomersPage() {
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteConfirmVisible} onClose={closeDeleteConfirmModal}>
+      {/* Delete Customer Confirmation Modal */}
+      <Modal isOpen={deleteCustomerConfirmVisible} onClose={closeCustomerDeleteConfirmModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
             <h2>Confirm Delete</h2>
             <p>Are you sure you want to delete {selectedCustomer?.name}?</p>
             <Button color="danger" onPress={handleDeleteCustomer}>Delete</Button>
-            <Button onPress={closeDeleteConfirmModal}>Cancel</Button>
+            <Button onPress={closeCustomerDeleteConfirmModal}>Cancel</Button>
+          </div>
+        </ModalContent>
+      </Modal>
+
+      {/* Delete Customer Confirmation Modal */}
+      <Modal isOpen={deleteServiceConfirmVisible} onClose={closeServiceDeleteConfirmModal}>
+        <ModalContent>
+          <div style={{ padding: '20px' }}>
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete {selectedService?.name}?</p>
+            <Button color="danger" onPress={handleDeleteService}>Delete</Button>
+            <Button onPress={closeServiceDeleteConfirmModal}>Cancel</Button>
           </div>
         </ModalContent>
       </Modal>
@@ -435,7 +467,21 @@ export default function CustomersPage() {
                       >
                         <Edit size={18} />
                       </Button>
+
+                      <Button
+                        isIconOnly
+                        color="danger"
+                        variant="light"
+                        onPress={() => {
+                          closeServicesViewModal();
+                          openDeleteServiceConfirmModal(service);
+                        }
+                        }
+                      >
+                        <Trash2 size={18} />
+                      </Button>
                     </TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
