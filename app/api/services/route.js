@@ -20,8 +20,8 @@ export async function POST(req) {
     // startingDate = new Date(startingDate);
     // endingDate = new Date(endingDate);
 
-    startingDate = new Date(startingDate.year, startingDate.month - 1, startingDate.day);
-    endingDate = new Date(endingDate.year, endingDate.month - 1, endingDate.day);
+    startingDate = new Date(startingDate.year, startingDate.month - 1, startingDate.day + 1);
+    endingDate = new Date(endingDate.year, endingDate.month - 1, endingDate.day + 1);
 
     console.log(startingDate);
     console.log(endingDate);

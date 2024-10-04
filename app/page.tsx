@@ -108,11 +108,6 @@ export default function CustomersPage() {
 
   const closeDeleteConfirmModal = () => setDeleteConfirmVisible(false);
 
-  function formatDate(dateTime) {
-  const date = new Date(dateTime);
-  return date.toISOString().split('T')[0];
-}
-
   const openServiceModal = (customer: Customer, service: Service | null = null) => {
     setSelectedCustomer(customer);
     if (service) {
@@ -426,8 +421,8 @@ export default function CustomersPage() {
                     <TableCell>{service.description}</TableCell>
                     <TableCell>{service.paymentType}</TableCell>
                     <TableCell>{`${service.periodPrice} ${service.currency}`}</TableCell>
-                    <TableCell>{`${service.startingDate}`}</TableCell>
-                    <TableCell>{`${service.endingDate}`}</TableCell>
+                    <TableCell>{`${service.startingDate.toString().split('T')[0]}`}</TableCell>
+                    <TableCell>{`${service.endingDate.toString().split('T')[0]}`}</TableCell>
                     <TableCell>
                       <Button
                         isIconOnly
