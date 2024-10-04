@@ -10,9 +10,7 @@ export async function GET(req, { params }) {
         });
         return NextResponse.json(services, { status: 200 });
     } catch (error) {
-        console.log('====================================');
         console.log(error);
-        console.log('====================================');
         return NextResponse.json({ error: 'Failed to fetch service' }, { status: 500 });
     }
 }

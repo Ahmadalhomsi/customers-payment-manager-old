@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';  // Import the prisma instance from the file
 
 
-export async function GET(req, {params}) {
+export async function GET(req, { params }) {
     const { id } = params;
 
     try {
@@ -11,14 +11,12 @@ export async function GET(req, {params}) {
         });
         return NextResponse.json(customer, { status: 200 });
     } catch (error) {
-        console.log('====================================');
         console.log(error);
-        console.log('====================================');
         return NextResponse.json({ error: 'Failed to fetch customer' }, { status: 500 });
     }
 }
 
-export async function PUT(req, {params}) {
+export async function PUT(req, { params }) {
     const { id } = params;
     const { name, email } = await req.json();
     try {
@@ -28,11 +26,12 @@ export async function PUT(req, {params}) {
         });
         return NextResponse.json(customer, { status: 200 });
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 });
     }
 }
 
-export async function DELETE(req, {params}) {
+export async function DELETE(req, { params }) {
     const { id } = params;
     try {
         await prisma.customer.delete({

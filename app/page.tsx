@@ -158,6 +158,11 @@ export default function CustomersPage() {
     setServicesViewModalVisible(true);
   };
 
+  const openServicesViewModalFromTable = async (id: string) => {
+    await fetchServices(id);
+    setServicesViewModalVisible(true);
+  };
+
   const closeServicesViewModal = () => setServicesViewModalVisible(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -253,7 +258,9 @@ export default function CustomersPage() {
     <div>
       <Button onPress={() => openModal(null)} style={{ margin: 20 }}>Create Customer</Button>
 
-      <Table aria-label="Customers Table">
+      <Table aria-label="Customers Table" selectionMode="multiple"
+        onRowAction={(key) => openServicesViewModalFromTable(key + "")}
+      >
         <TableHeader>
           <TableColumn>Name</TableColumn>
           <TableColumn>Email</TableColumn>
