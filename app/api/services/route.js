@@ -17,8 +17,8 @@ export async function POST(req) {
     // console.log(endingDate);
     
     
-    startingDate = new Date(startingDate).toISOString();
-    endingDate = new Date(endingDate).toISOString();
+    startingDate = new Date(startingDate);
+    endingDate = new Date(endingDate);
 
     console.log(startingDate);
     console.log(endingDate);

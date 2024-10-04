@@ -8,6 +8,9 @@ import {
 import { ModalContent } from "@nextui-org/react";
 import axios from 'axios';
 import { Edit, Trash2, Plus, Eye } from "lucide-react";
+import { format } from 'date-fns'; // Optional, using date-fns for formatting
+import { DateValue, parseDate, getLocalTimeZone } from "@internationalized/date";
+
 
 interface Customer {
   id: string;
@@ -23,8 +26,8 @@ interface Service {
   paymentType: string;
   periodPrice: number;
   currency: string;
-  startingDate: string;
-  endingDate: string;
+  startingDate: DateValue;
+  endingDate: DateValue;
   customerID: string;
 }
 
@@ -52,14 +55,15 @@ export default function CustomersPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [formData, setFormData] = useState<CustomerFormData>({ name: '', email: '', phone: '' });
+  const today = new Date();
   const [serviceFormData, setServiceFormData] = useState<ServiceFormData>({
     name: '',
     description: '',
     paymentType: 'Monthly',
     periodPrice: 0,
     currency: 'TL',
-    startingDate: '',
-    endingDate: ''
+    startingDate: parseDate(format(today, 'yyyy-MM-dd')),
+    endingDate: parseDate(format(today, 'yyyy-MM-dd'))
   });
 
   useEffect(() => {
@@ -107,6 +111,9 @@ export default function CustomersPage() {
   const openServiceModal = (customer: Customer, service: Service | null = null) => {
     setSelectedCustomer(customer);
     if (service) {
+      console.log(service);
+      console.log(serviceFormData);
+
       setSelectedService(service);
       setServiceFormData({
         name: service.name,
@@ -125,8 +132,8 @@ export default function CustomersPage() {
         paymentType: 'Monthly',
         periodPrice: 0,
         currency: 'TL',
-        startingDate: '',
-        endingDate: ''
+        startingDate: parseDate(format(today, 'yyyy-MM-dd')),
+        endingDate: parseDate(format(today, 'yyyy-MM-dd'))
       });
     }
     setServiceModalVisible(true);
@@ -161,6 +168,9 @@ export default function CustomersPage() {
   };
 
   const handleDateChange = (name: string, value: any) => {
+    console.log(value);
+
+
     setServiceFormData({
       ...serviceFormData,
       [name]: value,
@@ -339,19 +349,22 @@ export default function CustomersPage() {
               value={serviceFormData.periodPrice.toString()}
               onChange={(e) => handleServiceChange('periodPrice', parseFloat(e.target.value))}
               endContent={
-                <Select
-                  className="w-unit-3xl border-small border-default-200 dark:border-default-100"
-                  id="currency"
-                  name="currency"
-                  value={serviceFormData.currency}
-                  onChange={(e) => handleServiceChange('currency', e.target.value)}
-                >
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency.value} value={currency.value}>
-                      {currency.label}
-                    </SelectItem>
-                  ))}
-                </Select>
+                <div className="flex items-center">
+                  <Select
+                    className="outline-none border-0 bg-transparent text-default-400 text-small"
+                    id="currency"
+                    name="currency"
+                    value={serviceFormData.currency}
+                    onChange={(e) => handleServiceChange('currency', e.target.value)}
+                    style={{ width: '40px' }} // Set a fixed width
+                  >
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.value} value={currency.value}>
+                        {currency.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
               }
             />
             <Spacer y={1} />
@@ -359,6 +372,7 @@ export default function CustomersPage() {
               label="Payment Type"
               placeholder="Select payment type"
               value={serviceFormData.paymentType}
+              defaultSelectedKeys={['Monthly']}
               onChange={(e) => handleServiceChange('paymentType', e.target.value)}
             >
               {paymentTypes.map((type) => (
@@ -370,11 +384,13 @@ export default function CustomersPage() {
             <Spacer y={1} />
             <DatePicker
               label="Starting Date"
+              value={serviceFormData.startingDate}
               onChange={(date) => handleDateChange('startingDate', date)}
             />
             <Spacer y={1} />
             <DatePicker
               label="Ending Date"
+              value={serviceFormData.endingDate}
               onChange={(date) => handleDateChange('endingDate', date)}
             />
             <Spacer y={1} />
@@ -405,8 +421,8 @@ export default function CustomersPage() {
                     <TableCell>{service.description}</TableCell>
                     <TableCell>{service.paymentType}</TableCell>
                     <TableCell>{`${service.periodPrice} ${service.currency}`}</TableCell>
-                    <TableCell>{new Date(service.startingDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(service.endingDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{`${service.startingDate}`}</TableCell>
+                    <TableCell>{`${service.endingDate}`}</TableCell>
                     <TableCell>
                       <Button
                         isIconOnly
