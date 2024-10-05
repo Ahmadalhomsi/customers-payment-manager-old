@@ -267,7 +267,7 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <Button onPress={() => openModal(null)} style={{ margin: 20 }}>Create Customer</Button>
+      <Button onPress={() => openModal(null)} style={{ margin: 20, backgroundColor: "#f26000" }} >Create Customer</Button>
 
       <Table aria-label="Customers Table" selectionMode="multiple" color="warning"
         onRowAction={(key) => openServicesViewModalFromTable(key + "")}
@@ -278,7 +278,7 @@ export default function CustomersPage() {
           <TableColumn>Phone</TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
-        <TableBody loadingContent={<Spinner label="Loading..." color='primary'
+        <TableBody loadingContent={<Spinner label="Loading..." color='current'
         />}
           isLoading={loading}
         >
@@ -293,6 +293,7 @@ export default function CustomersPage() {
                     <Button
                       isIconOnly
                       color="primary"
+                      // className="text-mapos" 
                       variant="light"
                       onPress={() => openModal(customer)}
                     >
@@ -340,7 +341,7 @@ export default function CustomersPage() {
       <Modal isOpen={visible} onClose={closeModal}>
         <ModalContent>
           <div style={{ padding: '20px' }}>
-            <h2 style={{ margin: 6 }}>{selectedCustomer ? 'Edit Customer' : 'Create Customer'}</h2>
+            <h2 style={{ margin: 6 }}>{selectedCustomer ? 'Edit Customer' : 'Create Customer'} </h2>
             <Input label="Name" placeholder="Enter name" name="name" value={formData.name} onChange={handleChange} />
             <Spacer y={1} />
             <Input label="Email" placeholder="Enter email" name="email" value={formData.email} onChange={handleChange} />
@@ -467,7 +468,7 @@ export default function CustomersPage() {
                 <TableColumn>End Date</TableColumn>
                 <TableColumn>Actions</TableColumn>
               </TableHeader>
-              <TableBody loadingContent={<Spinner label="Loading..." color='primary'
+              <TableBody loadingContent={<Spinner label="Loading..." color='current'
               />}
                 isLoading={loadingOnModal}
               >

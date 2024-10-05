@@ -14,6 +14,11 @@ module.exports = {
         mono: ["var(--font-mono)"],
       },
     },
+    colors: {
+      transparent: "transparent",
+      current: "currentColor",
+      mapos: "#f26000",
+    }
   },
   darkMode: "class",
   darkMode: "class",
@@ -23,12 +28,12 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            primary: "#f26000", // Custom primary color
+            current: "#f26000", // Custom primary color
           },
         },
         dark: {
           colors: {
-            primary: "#f26000", // Same custom color for dark theme
+            current: "#f26000", // Same custom color for dark theme
           },
         },
       },

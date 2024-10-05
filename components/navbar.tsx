@@ -108,10 +108,10 @@ export const Navbar = () => {
               router.push("/login");
             }}
             startContent={<LogOutIcon 
-              // className="text-danger" 
+              className="text-mapos" 
               />}
             variant="flat"
-          >
+            >
             Logout
           </Button>
         </NavbarItem>

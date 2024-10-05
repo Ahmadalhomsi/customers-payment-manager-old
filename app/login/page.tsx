@@ -74,7 +74,7 @@ export default function LoginPage() {
                 <Spacer y={1.5} />
                 {error && <h1 color="error">{error}</h1>}
                 <Spacer y={1} />
-                <Button type="submit" fullWidth>
+                <Button type="submit" fullWidth style={{backgroundColor:"#f26000"}}>
                     Login
                 </Button>
             </form>
