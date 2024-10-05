@@ -1,5 +1,6 @@
 import { nextui } from '@nextui-org/theme'
 
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -18,7 +19,23 @@ module.exports = {
       transparent: "transparent",
       current: "currentColor",
       mapos: "#f26000",
-    }
+    },
+    // Dots BG Starts here
+    // backgroundImage: {
+    //   'luxury-dots': `radial-gradient(circle, rgba(255, 215, 0, 0.8) 1px, transparent 1px), 
+    //                   radial-gradient(circle, rgba(255, 215, 0, 0.5) 1px, transparent 1px)`,
+    // },
+    // backgroundSize: {
+    //   'dot-size': '80px 80px',
+    // },
+    // backgroundPosition: {
+    //   'dot-offset': '0 0, 40px 40px',
+    // },
+    // colors: {
+    //   luxuryBg: '#1c1c1c',
+    //   luxuryGold: '#FFD700',
+    // },
+    // Ends here
   },
   darkMode: "class",
   darkMode: "class",
