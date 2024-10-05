@@ -70,10 +70,23 @@ export default function CustomersPage() {
   });
   const [loading, setLoading] = useState(true);
   const [loadingOnModal, setLoadingOnModal] = useState(true);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Customer; direction: 'asc' | 'desc' } | null>(null);
 
+  const handleSort = (key: keyof Customer) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
 
-  const { theme } = useTheme();
+    const sortedCustomers = [...customers].sort((a, b) => {
+      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
+      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
 
+    setCustomers(sortedCustomers);
+  };
 
   useEffect(() => {
     fetchCustomers();
@@ -273,9 +286,15 @@ export default function CustomersPage() {
         onRowAction={(key) => openServicesViewModalFromTable(key + "")}
       >
         <TableHeader>
-          <TableColumn>Name</TableColumn>
-          <TableColumn>Email</TableColumn>
-          <TableColumn>Phone</TableColumn>
+          <TableColumn onClick={() => handleSort('name')}>
+            Name {sortConfig?.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </TableColumn>
+          <TableColumn onClick={() => handleSort('email')}>
+            Email {sortConfig?.key === 'email' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </TableColumn>
+          <TableColumn onClick={() => handleSort('phone')}>
+            Phone {sortConfig?.key === 'phone' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
         <TableBody loadingContent={<Spinner label="Loading..." color='current'
