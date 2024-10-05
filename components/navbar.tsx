@@ -1,3 +1,4 @@
+"use client";
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -21,12 +22,14 @@ import {
   TwitterIcon,
   GithubIcon,
   DiscordIcon,
-  HeartFilledIcon,
   SearchIcon,
   Logo,
 } from "@/components/icons";
+import { useRouter } from "next/navigation";
+import { LogOutIcon } from "lucide-react";
 
 export const Navbar = () => {
+  const router = useRouter();
   const searchInput = (
     <Input
       aria-label="Search"
@@ -86,7 +89,10 @@ export const Navbar = () => {
           <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
             <DiscordIcon className="text-default-500" />
           </Link>
-          <Link isExternal aria-label="Github" href={siteConfig.links.github}>
+          <Link isExternal aria-label="Github" onClick={async () => {
+            await fetch("/api/logout");
+            router.push("/login");
+          }}>
             <GithubIcon className="text-default-500" />
           </Link>
           <ThemeSwitch />
@@ -96,12 +102,17 @@ export const Navbar = () => {
           <Button
             isExternal
             as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
+            className="text-sm font-bold text-default-600 bg-default-100"
+            onClick={async () => {
+              await fetch("/api/logout");
+              router.push("/login");
+            }}
+            startContent={<LogOutIcon 
+              // className="text-danger" 
+              />}
             variant="flat"
           >
-            Sponsor
+            Logout
           </Button>
         </NavbarItem>
       </NavbarContent>
