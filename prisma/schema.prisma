@@ -53,3 +53,11 @@ model service {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model failedLoginAttempt {
+  id           String    @id @default(cuid())
+  ipAddress    String    @unique
+  attempts     Int       @default(0)
+  lastAttempt  DateTime  @updatedAt
+  blockedUntil DateTime? // Optional: If blocked, until when it's blocked
+}
