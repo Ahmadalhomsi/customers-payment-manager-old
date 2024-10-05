@@ -11,6 +11,7 @@ import axios from 'axios';
 import { Edit, Trash2, Plus, Eye } from "lucide-react";
 import { format, parseISO } from 'date-fns'; // Optional, using date-fns for formatting
 import { DateValue, parseDate, getLocalTimeZone } from "@internationalized/date";
+import { useTheme } from 'next-themes';
 
 
 interface Customer {
@@ -68,6 +69,11 @@ export default function CustomersPage() {
     endingDate: parseDate(format(today, 'yyyy-MM-dd'))
   });
   const [loading, setLoading] = useState(true);
+  const [loadingOnModal, setLoadingOnModal] = useState(true);
+
+
+  const { theme } = useTheme();
+
 
   useEffect(() => {
     fetchCustomers();
@@ -77,19 +83,21 @@ export default function CustomersPage() {
     try {
       const response = await axios.get('/api/customers');
       setCustomers(response.data);
-      setLoading(false);
     } catch (error) {
       console.log('Error fetching customers:', error);
     }
+    setLoading(false);
   }
 
   async function fetchServices(customerId: string) {
+    setLoadingOnModal(true);
     try {
       const response = await axios.get(`/api/services/${customerId}`);
       setServices(response.data);
     } catch (error) {
       console.log('Error fetching services:', error);
     }
+    setLoadingOnModal(false);
   }
 
   const openModal = (customer: Customer | null = null) => {
@@ -261,7 +269,7 @@ export default function CustomersPage() {
     <div>
       <Button onPress={() => openModal(null)} style={{ margin: 20 }}>Create Customer</Button>
 
-      <Table aria-label="Customers Table" selectionMode="multiple"
+      <Table aria-label="Customers Table" selectionMode="multiple" color="warning"
         onRowAction={(key) => openServicesViewModalFromTable(key + "")}
       >
         <TableHeader>
@@ -270,7 +278,8 @@ export default function CustomersPage() {
           <TableColumn>Phone</TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
-        <TableBody loadingContent={<Spinner />}
+        <TableBody loadingContent={<Spinner label="Loading..." color='primary'
+        />}
           isLoading={loading}
         >
           {customers.map((customer) => (
@@ -458,7 +467,10 @@ export default function CustomersPage() {
                 <TableColumn>End Date</TableColumn>
                 <TableColumn>Actions</TableColumn>
               </TableHeader>
-              <TableBody loadingContent={<Spinner />}>
+              <TableBody loadingContent={<Spinner label="Loading..." color='primary'
+              />}
+                isLoading={loadingOnModal}
+              >
                 {services.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell>{service.name}</TableCell>
