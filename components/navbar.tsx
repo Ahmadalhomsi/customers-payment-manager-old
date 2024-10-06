@@ -16,7 +16,7 @@ import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { usePathname } from 'next/navigation';
-
+import { BadgeNotification } from "@/components/BadgeNotification";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -40,7 +40,7 @@ export const Navbar = () => {
       }}
       endContent={
         <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
+          s
         </Kbd>
       }
       labelPlacement="outside"
@@ -52,6 +52,8 @@ export const Navbar = () => {
     />
   );
 
+
+
   const currentPage = usePathname();
   const isLoginPage = currentPage === "/login";
 
@@ -60,7 +62,6 @@ export const Navbar = () => {
   }
 
   else {
-
     return (
       <NextUINavbar maxWidth="xl" position="sticky">
         <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -105,6 +106,9 @@ export const Navbar = () => {
             <ThemeSwitch />
           </NavbarItem>
           <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
+
+          <BadgeNotification />
+
           {!isLoginPage && (
             <NavbarItem className="hidden md:flex">
               <Button
@@ -123,6 +127,8 @@ export const Navbar = () => {
             </NavbarItem>
           )}
         </NavbarContent>
+
+
 
         <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
           <Link isExternal aria-label="Github" href={siteConfig.links.github}>
