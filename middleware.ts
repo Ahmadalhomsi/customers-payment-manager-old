@@ -19,12 +19,17 @@ export async function middleware(req: NextRequest) {
   }
 
   if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    if (!pathname.startsWith("/login")) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    return NextResponse.next();
   }
 
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     req.nextUrl.searchParams.set("user", JSON.stringify(payload));
+
+
 
     if (pathname.startsWith("/login")) {
       return NextResponse.redirect(new URL("/", req.url));
@@ -42,6 +47,6 @@ export const config = {
   matcher: [
     "/api/:path*",  // Apply to all API routes
     "/",            // Apply to the root route
-    // "/login",     // Apply to the profile route
+    "/login",     // Apply to the profile route
   ],
 };
