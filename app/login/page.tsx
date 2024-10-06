@@ -6,8 +6,6 @@ import { Button, Input, Spacer } from "@nextui-org/react";
 import { EyeSlashFilledIcon } from "../../components/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "../../components/EyeFilledIcon";
 
-
-
 export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -19,29 +17,40 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const response = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, password }),
-        });
+        setError(""); // Reset any previous errors
 
-        if (response.ok) {
-            router.push("/");
-        } else {
+        try {
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
             const result = await response.json();
-            if (response.status === 429) {
-                setError("Too many failed attempts. Try again later.");
+
+            // In the handleSubmit function of the login page
+            if (response.ok) {
+                localStorage.setItem("token", result.token);
+                // Also set the token as a cookie
+                document.cookie = `token=${result.token}; path=/; max-age=86400; samesite=strict; secure`;
+                router.push("/");
             } else {
-                setError(result.message || "Invalid username or password");
+                if (response.status === 429) {
+                    setError("Too many failed attempts. Try again later.");
+                } else {
+                    setError(result.message || "Invalid username or password");
+                }
             }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
         }
     };
 
     return (
         <div style={{ maxWidth: "400px", margin: "auto", padding: "20px", marginTop: "150px" }}>
-            <h1 style={{margin:6}} className="font-bold">Login</h1>
+            <h1 style={{ margin: 6 }} className="font-bold">Login</h1>
             <form onSubmit={handleSubmit}>
                 <Input
                     label="Username"
@@ -58,9 +67,13 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e: any) => setPassword(e.target.value)}
                     variant="bordered"
-                    // placeholder="Enter your password"
                     endContent={
-                        <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
+                        <button
+                            className="focus:outline-none"
+                            type="button"
+                            onClick={toggleVisibility}
+                            aria-label="toggle password visibility"
+                        >
                             {isVisible ? (
                                 <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
                             ) : (
@@ -69,12 +82,11 @@ export default function LoginPage() {
                         </button>
                     }
                     type={isVisible ? "text" : "password"}
-                    // className="max-w-xs"
                 />
                 <Spacer y={1.5} />
                 {error && <h1 color="error">{error}</h1>}
                 <Spacer y={1} />
-                <Button type="submit" fullWidth style={{backgroundColor:"#f26000"}}>
+                <Button type="submit" fullWidth style={{ backgroundColor: "#f26000" }}>
                     Login
                 </Button>
             </form>

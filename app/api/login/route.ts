@@ -1,16 +1,19 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-
+import jwt from "jsonwebtoken";
 
 const MAX_ATTEMPTS = 5;
 const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Ensure this is set in the environment variables
+const JWT_EXPIRATION = "1d"; // JWT expiration time
 
 export async function POST(req: NextRequest) {
+  
+  
   const { username, password } = await req.json();
   const ipAddress = req.headers.get("x-forwarded-for") || req.ip || "unknown"; // Get user's IP address
-  
+
   // Fetch record for this IP
-  
   const failedAttempt = await prisma.failedLoginAttempt.findUnique({
     where: { ipAddress },
   });
@@ -35,14 +38,17 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Set a session cookie
-    const response = NextResponse.json({ message: "Login successful" });
-    response.cookies.set("admin", "logged-in", {
-      httpOnly: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24, // 1 day session
+    // Create a JWT token
+    const token = jwt.sign({ username }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRATION,
     });
-    return response;
+
+    console.log("Login successful");
+    // Send the JWT token in the response
+    return NextResponse.json({
+      message: "Login successful",
+      token,
+    });
   }
 
   // Handle invalid login attempt
