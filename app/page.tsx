@@ -11,7 +11,6 @@ import axios from 'axios';
 import { Edit, Trash2, Plus, Eye } from "lucide-react";
 import { format, parseISO } from 'date-fns'; // Optional, using date-fns for formatting
 import { DateValue, parseDate, getLocalTimeZone } from "@internationalized/date";
-import { useTheme } from 'next-themes';
 
 
 interface Customer {
@@ -278,9 +277,25 @@ export default function CustomersPage() {
     }
   };
 
+  const sendSMTPemail = async () => {
+    try {
+      console.log("----------------------");
+
+      const res = await axios.post('/api/mailer')
+      console.log(res);
+      console.log('Email sent successfully OUTSIDE');
+ 
+    } catch (error) {
+      console.log('Error sending email:', error);
+      
+    }
+  }
+
   return (
     <div>
       <Button onPress={() => openModal(null)} style={{ margin: 20, backgroundColor: "#f26000" }} >Create Customer</Button>
+      <Button onPress={() => sendSMTPemail()} style={{ margin: 20, backgroundColor: "#f26000" }} >Send an email</Button>
+
 
       <Table aria-label="Customers Table" selectionMode="multiple" color="warning"
         onRowAction={(key) => openServicesViewModalFromTable(key + "")}
