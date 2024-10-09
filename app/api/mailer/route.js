@@ -12,7 +12,6 @@ export async function POST(req) {
     console.log(smtpHost, smtpUser, smtpPass, fromEmail, toEmail);
 
 
-    // Try port 587 directly since it was successful
     const config = { port: 587, secure: false };
 
     try {

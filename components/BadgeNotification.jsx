@@ -1,51 +1,56 @@
 import React, { useEffect, useState } from "react";
 import {
   Badge,
-  Switch,
   Popover,
   PopoverTrigger,
   PopoverContent,
   Button,
   Modal,
-  ModalBody,
+  ModalContent,
   ModalHeader,
+  ModalBody,
   ModalFooter,
+  useDisclosure
 } from "@nextui-org/react";
 import { NotificationIcon } from "./NotificationIcon";
 import axios from "axios";
 import { format } from "date-fns";
 
-async function fetchServices(setTodayServices) {
-  try {
-    const response = await axios.get(`/api/services/`);
-    const today = format(new Date(), "yyyy-MM-dd");
-
-    const todayServices = response.data.filter((service) => {
-      const serviceEndDate = service.endingDate.toString().split("T")[0];
-      return serviceEndDate === today;
-    });
-    
-    setTodayServices(todayServices);
-  } catch (error) {
-    console.error("Error fetching services:", error);
-  }
-}
-
 export function BadgeNotification() {
-  const [isInvisible, setIsInvisible] = useState(false);
+  const [isInvisible, setIsInvisible] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [todayServices, setTodayServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isOpen: isModalOpen, onOpen: openModal, onOpenChange: onModalOpenChange } = useDisclosure();
+
+  async function fetchServices(setTodayServices) {
+    try {
+      const response = await axios.get(`/api/services/`);
+      const today = format(new Date(), "yyyy-MM-dd");
+
+      const todayServices = response.data.filter((service) => {
+        const serviceEndDate = service.endingDate.toString().split("T")[0];
+        return serviceEndDate === today;
+      });
+
+      setTodayServices(todayServices);
+
+      if (todayServices.length > 0)
+        setIsInvisible(false);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  }
 
   useEffect(() => {
     fetchServices(setTodayServices);
   }, []);
 
   const handleNotificationClick = (service) => {
+    setIsOpen(false);
+    setIsInvisible(false);
     setSelectedService(service);
-    setIsModalOpen(true);
-    setIsOpen(false); // Close the popover when opening the modal
+    openModal();
   };
 
   return (
@@ -80,48 +85,55 @@ export function BadgeNotification() {
                   >
                     <p className="text-sm">{service.name} - {service.customer.name}</p>
                     <p className="text-xs text-gray-500">
-                      Ends: {format(new Date(service.endingDate), "yyyy-MM-dd")}
+                      Ends: {service.endingDate.toString().split('T')[0]}
                     </p>
                   </div>
                 ))
               ) : (
                 <p className="text-sm text-gray-500">No services ending today.</p>
               )}
-              <Button size="sm" className="mt-2 w-full">
-                View All
-              </Button>
             </div>
           </PopoverContent>
         </Popover>
       </div>
-      <Switch
-        isSelected={!isInvisible}
-        onValueChange={(value) => setIsInvisible(!value)}
-      />
 
-      {selectedService && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        >
-          <ModalHeader>
-            <h3>{selectedService.name}</h3>
-          </ModalHeader>
-          <ModalBody>
-            <p><strong>Customer:</strong> {selectedService.customer.name}</p>
-            <p><strong>Description:</strong> {selectedService.description}</p>
-            <p><strong>Payment Type:</strong> {selectedService.paymentType}</p>
-            <p><strong>Period Price:</strong> {selectedService.periodPrice} {selectedService.currency}</p>
-            <p><strong>Starting Date:</strong> {format(new Date(selectedService.startingDate), "yyyy-MM-dd")}</p>
-            <p><strong>Ending Date:</strong> {format(new Date(selectedService.endingDate), "yyyy-MM-dd")}</p>
-            <p><strong>Customer Email:</strong> {selectedService.customer.email}</p>
-            <p><strong>Customer Phone:</strong> {selectedService.customer.phone}</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={() => setIsModalOpen(false)}>Close</Button>
-          </ModalFooter>
-        </Modal>
-      )}
+      <Modal 
+        isOpen={isModalOpen} 
+        onOpenChange={onModalOpenChange}
+        placement="center"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                {selectedService?.name}
+              </ModalHeader>
+              <ModalBody>
+                {selectedService && (
+                  <>
+                    <p><strong>Customer:</strong> {selectedService.customer.name}</p>
+                    <p><strong>Description:</strong> {selectedService.description}</p>
+                    <p><strong>Payment Type:</strong> {selectedService.paymentType}</p>
+                    <p><strong>Period Price:</strong> {selectedService.periodPrice} {selectedService.currency}</p>
+                    <p><strong>Starting Date:</strong> {selectedService.startingDate.toString().split('T')[0]}</p>
+                    <p><strong>Ending Date:</strong> {selectedService.endingDate.toString().split('T')[0]}</p>
+                    <p><strong>Customer Email:</strong> {selectedService.customer.email}</p>
+                    <p><strong>Customer Phone:</strong> {selectedService.customer.phone}</p>
+                  </>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                {/* <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+                <Button color="primary" onPress={onClose}>
+                  Action
+                </Button> */}
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
