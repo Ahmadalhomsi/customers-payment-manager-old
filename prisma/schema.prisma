@@ -48,7 +48,7 @@ model service {
 
   // Relations
   customerID String
-  customers  customer @relation("CustomerToService", fields: [customerID], references: [id], onDelete: Cascade)
+  customer  customer @relation("CustomerToService", fields: [customerID], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

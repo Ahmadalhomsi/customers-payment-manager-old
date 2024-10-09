@@ -21,7 +21,8 @@ export async function POST(req) {
 
     startingDate = new Date(startingDate.year, startingDate.month - 1, startingDate.day + 1);
     endingDate = new Date(endingDate.year, endingDate.month - 1, endingDate.day + 1);
-
+    startingDate.setUTCHours(0, 0, 0, 0);
+    endingDate.setUTCHours(0, 0, 0, 0);
     console.log(startingDate);
     console.log(endingDate);
 
@@ -53,7 +54,11 @@ export async function POST(req) {
 
 export async function GET() {
     try {
-        const services = await prisma.service.findMany();
+        const services = await prisma.service.findMany({
+            include: {
+              customer: true,
+            },
+          });
         return NextResponse.json(services, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 });
