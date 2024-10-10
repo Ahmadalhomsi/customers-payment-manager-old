@@ -20,7 +20,11 @@ export async function POST(req) {
 
 export async function GET() {
     try {
-        const customers = await prisma.customer.findMany();
+        const customers = await prisma.customer.findMany({
+            include: {
+                services: true,
+            },
+        });
         return NextResponse.json(customers, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });
