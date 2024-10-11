@@ -11,23 +11,11 @@ export async function POST(req) {
 
     let { startingDate, endingDate } = data;
 
-    // console.log("----------------------------");
-    // console.log(startingDate);
-    // console.log(endingDate);
-
-
-    // startingDate = new Date(startingDate);
-    // endingDate = new Date(endingDate);
 
     startingDate = new Date(startingDate.year, startingDate.month - 1, startingDate.day + 1);
     endingDate = new Date(endingDate.year, endingDate.month - 1, endingDate.day + 1);
     startingDate.setUTCHours(0, 0, 0, 0);
     endingDate.setUTCHours(0, 0, 0, 0);
-    console.log(startingDate);
-    console.log(endingDate);
-
-    console.log("----------------------------");
-
 
     try {
         const service = await prisma.service.create({

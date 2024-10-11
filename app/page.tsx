@@ -10,6 +10,8 @@ import DeleteConfirmModal from '../components/mainPage/DeleteConfirmModal';
 import ServiceModal from '../components/mainPage/ServiceModal';
 import ServicesViewModal from '../components/mainPage/ServicesViewModal';
 import { Customer, Service, CustomerFormData, ServiceFormData } from '../components/mainPage/types';
+import { format } from 'date-fns';
+import { parseDate } from '@internationalized/date';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -121,6 +123,7 @@ export default function CustomersPage() {
     }
   }
 
+
   return (
     <div>
       <Button onPress={() => setCustomerModalVisible(true)} style={{ margin: 20, backgroundColor: "#f26000" }}>Create Customer</Button>
@@ -144,10 +147,10 @@ export default function CustomersPage() {
           setServiceModalVisible(true);
         }}
         onViewServices={(customer) => {
+          fetchServices(customer.id);
           setSelectedCustomer(customer);
-          // fetchServices(customer.id);
-          if(customer.services)
-          setServices(customer.services)
+          // if (customer.services)
+          //   setServices(customer.services)
           setLoadingOnModal(false)
           setServicesViewModalVisible(true);
         }}
@@ -194,6 +197,11 @@ export default function CustomersPage() {
         loadingOnModal={loadingOnModal}
         selectedCustomer={selectedCustomer}
         onEditService={(service: any) => {
+          service = {
+            ...service,
+            startingDate: parseDate(format(service.startingDate.toString().split('T')[0], 'yyyy-MM-dd')),
+            endingDate: parseDate(format(service.endingDate.toString().split('T')[0], 'yyyy-MM-dd')),
+          }
           setSelectedService(service);
           setServicesViewModalVisible(false);
           setServiceModalVisible(true);

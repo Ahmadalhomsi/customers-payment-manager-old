@@ -17,14 +17,32 @@ export async function GET(req, { params }) {
 
 export async function PUT(req, { params }) {
     const { id } = params;
-    const { name, email } = await req.json();
+    const data = await req.json();
+    let startingDate = data.startingDate;
+    let endingDate = data.endingDate;
+
+    startingDate = new Date(startingDate.year, startingDate.month - 1, startingDate.day + 1);
+    endingDate = new Date(endingDate.year, endingDate.month - 1, endingDate.day + 1);
+    startingDate.setUTCHours(0, 0, 0, 0);
+    endingDate.setUTCHours(0, 0, 0, 0);
+
     try {
         const service = await prisma.service.update({
             where: { id: id },
-            data: { name, email },
+            data: {
+                name: data.name,
+                description: data.description,
+                paymentType: data.paymentType,
+                periodPrice: data.periodPrice,
+                currency: data.currency,
+                startingDate: startingDate,
+                endingDate: endingDate,
+                customerID: data.customerID
+            },
         });
         return NextResponse.json(service, { status: 200 });
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: 'Failed to update service' }, { status: 500 });
     }
 }
