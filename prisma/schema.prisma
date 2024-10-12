@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model admin {
+model Admin {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
@@ -22,20 +22,20 @@ model admin {
   updatedAt DateTime @updatedAt
 }
 
-model customer {
+model Customer {
   id    String  @id @default(cuid())
   name  String
   email String  @unique
   phone String?
 
   // Relations
-  services service[] @relation("CustomerToService")
+  services Service[] @relation("CustomerToService")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model service {
+model Service {
   id          String @id @default(cuid())
   name        String
   description String
@@ -48,13 +48,34 @@ model service {
 
   // Relations
   customerID String
-  customer  customer @relation("CustomerToService", fields: [customerID], references: [id], onDelete: Cascade)
+  customer   Customer   @relation("CustomerToService", fields: [customerID], references: [id], onDelete: Cascade)
+  reminders  Reminder[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model failedLoginAttempt {
+model Reminder {
+  id          String         @id @default(cuid())
+  scheduledAt DateTime
+  status      ReminderStatus @default(SCHEDULED)
+
+  // Relations
+  serviceID String
+  service   Service @relation(fields: [serviceID], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ReminderStatus {
+  SCHEDULED
+  SENT
+  CANCELED
+  FAILED
+}
+
+model FailedLoginAttempt {
   id           String    @id @default(cuid())
   ipAddress    String    @unique
   attempts     Int       @default(0)
