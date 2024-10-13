@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { getLocalTimeZone, parseDate } from '@internationalized/date';
 import ReminderModal from '../components/mainPage/ReminderModal';
 import { useDateFormatter } from "@react-aria/i18n";
+import ReminderViewModal from '@/components/mainPage/ReminderViewModal';
 
 
 export default function CustomersPage() {
@@ -32,6 +33,7 @@ export default function CustomersPage() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
+  const [reminderViewModalVisible, setReminderViewModalVisible] = useState(false);
 
 
   useEffect(() => {
@@ -133,6 +135,9 @@ export default function CustomersPage() {
   async function fetchReminders(serviceId: string) {
     try {
       const response = await axios.get(`/api/reminders/${serviceId}`);
+      console.log('====================================xx');
+      console.log(response.data);
+      console.log('====================================xx');
       setReminders(response.data);
     } catch (error) {
       console.log('Error fetching reminders:', error);
@@ -263,6 +268,12 @@ export default function CustomersPage() {
           setServicesViewModalVisible(false);
           setReminderModalVisible(true);
         }}
+        onViewReminders={(service: any) => {
+          setSelectedService(service);
+          // fetchReminders(service.id);
+          setServicesViewModalVisible(false);
+          setReminderViewModalVisible(true);
+        }}
       />
 
       <ReminderModal
@@ -271,6 +282,28 @@ export default function CustomersPage() {
         onSubmit={handleReminderSubmit}
         selectedReminder={selectedReminder}
       />
+
+      <ReminderViewModal
+        visible={reminderViewModalVisible}
+        onClose={() => {
+          setReminderViewModalVisible(false);
+          setReminders([]);
+        }}
+        reminders={selectedService?.reminders || []}
+        onCreateNewReminder={() => {
+          setReminderModalVisible(true);
+        }}
+        onEditReminder={(reminder) => {
+          setSelectedReminder(reminder);
+          setReminderViewModalVisible(false);
+          setReminderModalVisible(true);
+        }}
+        onDeleteReminder={(id) => {
+          console.log('Deleting reminder:', id);
+        }}
+        loading={loadingOnModal}
+      >
+      </ReminderViewModal>
     </div>
   );
 }

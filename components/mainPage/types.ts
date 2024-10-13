@@ -17,6 +17,7 @@ export interface Service {
   periodPrice: number;
   currency: string;
   startingDate: DateValue;
+  reminders?: Reminder[];
   endingDate: DateValue;
   customerID: string;
 }

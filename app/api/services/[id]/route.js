@@ -7,6 +7,9 @@ export async function GET(req, { params }) {
     try {
         const services = await prisma.service.findMany({
             where: { customerID: id },
+            include: {
+                reminders: true,
+            },
         });
         return NextResponse.json(services, { status: 200 });
     } catch (error) {
