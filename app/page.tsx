@@ -11,8 +11,9 @@ import ServiceModal from '../components/mainPage/ServiceModal';
 import ServicesViewModal from '../components/mainPage/ServicesViewModal';
 import { Customer, Service, CustomerFormData, ServiceFormData, Reminder } from '../components/mainPage/types';
 import { format } from 'date-fns';
-import { parseDate } from '@internationalized/date';
+import { getLocalTimeZone, parseDate } from '@internationalized/date';
 import ReminderModal from '../components/mainPage/ReminderModal';
+import { useDateFormatter } from "@react-aria/i18n";
 
 
 export default function CustomersPage() {
@@ -138,12 +139,24 @@ export default function CustomersPage() {
     }
   }
 
+  // let formatter = useDateFormatter({dateStyle: "full"});
+  // and
+  // formatter.format(reminderData.scheduledAt.toDate(getLocalTimeZone()))
+  // output:  13 Ekim 2024 Pazar
+
+
   const handleReminderSubmit = async (reminderData: Partial<Reminder>) => {
+    const fromattedDate = reminderData.scheduledAt ? reminderData.scheduledAt.toDate(getLocalTimeZone()) : null; // DateValue to Date
     try {
       if (selectedReminder) {
-        await axios.put(`/api/reminders/${selectedReminder.id}`, reminderData);
+        console.log('Updating reminder:', reminderData);
+        await axios.put(`/api/reminders/${selectedReminder.id}`, { ...reminderData, scheduledAt: fromattedDate });
       } else if (selectedService) {
-        await axios.post('/api/reminders', { ...reminderData, serviceID: selectedService.id });
+        console.log('Creating reminder:', reminderData);
+        await axios.post('/api/reminders', {
+          ...reminderData, scheduledAt: fromattedDate,
+          serviceID: selectedService.id
+        });
       }
       if (selectedService) {
         await fetchReminders(selectedService.id);
@@ -159,7 +172,7 @@ export default function CustomersPage() {
     <div>
       <Button onPress={() => setCustomerModalVisible(true)} style={{ margin: 20, backgroundColor: "#f26000" }}>Create Customer</Button>
       <Button onPress={sendSMTPemail} style={{ margin: 20, backgroundColor: "#f26000" }}>Send an email</Button>
-      <Button onPress={() => setReminderModalVisible(true)} style={{ margin: 20, backgroundColor: "#f26000" }}>Create Reminder</Button>
+      {/* <Button onPress={() => setReminderModalVisible(true)} style={{ margin: 20, backgroundColor: "#f26000" }}>Create Reminder</Button> */}
 
 
       <CustomerTable
@@ -243,6 +256,12 @@ export default function CustomersPage() {
           setSelectedService(service);
           setServicesViewModalVisible(false);
           setDeleteServiceConfirmVisible(true);
+        }}
+        onCreateReminder={(service: any) => {
+          setSelectedService(service);
+          fetchReminders(service.id);
+          setServicesViewModalVisible(false);
+          setReminderModalVisible(true);
         }}
       />
 

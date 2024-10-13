@@ -4,20 +4,18 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
     const { scheduledAt, message, serviceID } = await req.json();
+    
     try {
         const reminder = await prisma.reminder.create({
             data: {
                 scheduledAt,
                 message,
-                services: {
-                    connect: {
-                        id: serviceID,
-                    },
-                }
+                serviceID
             },
         });
         return NextResponse.json(reminder, { status: 201 });
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: 'Failed to create reminder' }, { status: 500 });
     }
 }

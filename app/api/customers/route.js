@@ -14,6 +14,7 @@ export async function POST(req) {
         });
         return NextResponse.json(customer, { status: 201 });
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 });
     }
 }

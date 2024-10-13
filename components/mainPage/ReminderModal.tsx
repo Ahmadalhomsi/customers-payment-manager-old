@@ -18,6 +18,7 @@ export default function ReminderModal({
 }: ReminderModalProps) {
     const [scheduledAt, setScheduledAt] = useState<DateValue>(parseDate(new Date().toISOString().split('T')[0]));
     const [status, setStatus] = useState<ReminderStatus>(ReminderStatus.SCHEDULED);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         if (selectedReminder) {
@@ -33,6 +34,7 @@ export default function ReminderModal({
         onSubmit({
             scheduledAt: scheduledAt,
             status,
+            message,
         });
     };
 
@@ -62,7 +64,11 @@ export default function ReminderModal({
                         ))}
                     </Select>
                     <Spacer y={1} />
-                    <Textarea label="Message" placeholder="Enter message" />
+                    <Textarea label="Message" placeholder="Enter message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        // rows={4}
+                    />
                     <Spacer y={1} />
 
                     <Button style={{ marginRight: 6 }} onPress={handleSubmit}>

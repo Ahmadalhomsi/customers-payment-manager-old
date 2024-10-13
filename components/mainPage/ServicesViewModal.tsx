@@ -2,7 +2,7 @@
 import React from 'react';
 import { Modal, Button, Table, TableColumn, TableHeader, TableBody, TableRow, TableCell, Spinner } from '@nextui-org/react';
 import { ModalContent } from "@nextui-org/react";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, CalendarClockIcon } from "lucide-react";
 import { Customer, Service } from './types';
 
 interface ServicesViewModalProps {
@@ -13,6 +13,7 @@ interface ServicesViewModalProps {
   selectedCustomer: Customer | null;
   onEditService: (service: Service) => void;
   onDeleteService: (service: Service) => void;
+  onCreateReminder: (service: Service) => void;
 }
 
 export default function ServicesViewModal({
@@ -22,7 +23,8 @@ export default function ServicesViewModal({
   loadingOnModal,
   selectedCustomer,
   onEditService,
-  onDeleteService
+  onDeleteService,
+  onCreateReminder,
 }: ServicesViewModalProps) {
   return (
     <Modal isOpen={visible} onClose={onClose} size="5xl">
@@ -67,6 +69,14 @@ export default function ServicesViewModal({
                       onPress={() => onDeleteService(service)}
                     >
                       <Trash2 size={18} />
+                    </Button>
+                    <Button
+                      isIconOnly
+                      color="default"
+                      variant="light"
+                      onPress={() => onCreateReminder(service)}
+                    >
+                      <CalendarClockIcon size={18} />
                     </Button>
                   </TableCell>
                 </TableRow>
