@@ -8,7 +8,7 @@ interface DeleteConfirmModalProps {
   onClose: () => void;
   onConfirm: () => void;
   itemName: string | undefined;
-  itemType: 'customer' | 'service';
+  itemType: 'customer' | 'service' | 'reminder';
 }
 
 export default function DeleteConfirmModal({ visible, onClose, onConfirm, itemName, itemType }: DeleteConfirmModalProps) {

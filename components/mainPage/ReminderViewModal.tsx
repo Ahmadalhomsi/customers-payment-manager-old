@@ -25,7 +25,7 @@ interface ReminderModalProps {
   reminders: Reminder[]; // List of reminders for the selected service
   onCreateNewReminder: () => void;
   onEditReminder: (reminder: Reminder) => void;
-  onDeleteReminder: (id: string) => void;
+  onDeleteReminder: (reminder: Reminder) => void;
   loading: boolean; // Optional: To handle loading state
 }
 
@@ -69,7 +69,7 @@ export default function ReminderViewModal({
                       </Button>
                     </Tooltip>
                     <Tooltip content="Delete reminder">
-                      <Button isIconOnly color="danger" variant="light" onPress={() => onDeleteReminder(reminder.id)}>
+                      <Button isIconOnly color="danger" variant="light" onPress={() => onDeleteReminder(reminder)}>
                         <Trash2 size={18} />
                       </Button>
                     </Tooltip>
@@ -84,7 +84,7 @@ export default function ReminderViewModal({
         <Spacer y={1} />
 
         {/* Button to create a new reminder */}
-        <Button color="success" onPress={onCreateNewReminder}>
+        <Button style={{ backgroundColor: "#f26000" }} onPress={onCreateNewReminder}>
           <Plus size={18} /> Create New Reminder
         </Button>
 

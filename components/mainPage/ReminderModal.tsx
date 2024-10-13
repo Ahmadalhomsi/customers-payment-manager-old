@@ -18,12 +18,13 @@ export default function ReminderModal({
 }: ReminderModalProps) {
     const [scheduledAt, setScheduledAt] = useState<DateValue>(parseDate(new Date().toISOString().split('T')[0]));
     const [status, setStatus] = useState<ReminderStatus>(ReminderStatus.SCHEDULED);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState<string>('');
 
     useEffect(() => {
         if (selectedReminder) {
             setScheduledAt(selectedReminder.scheduledAt);
             setStatus(selectedReminder.status);
+            setMessage(selectedReminder.message || '');
         } else {
             setScheduledAt(parseDate(new Date().toISOString().split('T')[0]));
             setStatus(ReminderStatus.SCHEDULED);

@@ -30,11 +30,11 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [loadingOnModal, setLoadingOnModal] = useState(true);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Customer; direction: 'asc' | 'desc' } | null>(null);
-  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
   const [reminderViewModalVisible, setReminderViewModalVisible] = useState(false);
-
+  const [deleteReminderConfirmVisible, setDeleteReminderConfirmVisible] = useState(false);
+  const [reminderToDelete, setReminderToDelete] = useState<Reminder | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -133,12 +133,13 @@ export default function CustomersPage() {
   }
 
   async function fetchReminders(serviceId: string) {
+
     try {
       const response = await axios.get(`/api/reminders/${serviceId}`);
-      console.log('====================================xx');
-      console.log(response.data);
-      console.log('====================================xx');
-      setReminders(response.data);
+      setSelectedService({
+        ...selectedService!,
+        reminders: response.data
+      });
     } catch (error) {
       console.log('Error fetching reminders:', error);
     }
@@ -169,6 +170,20 @@ export default function CustomersPage() {
       setReminderModalVisible(false);
     } catch (error) {
       console.log('Error submitting reminder:', error);
+    }
+  };
+
+  const handleDeleteReminder = async () => {
+    if (reminderToDelete) {
+      try {
+        await axios.delete(`/api/reminders/${reminderToDelete.id}`);
+        if (selectedService) {
+          await fetchReminders(selectedService.id);
+        }
+        setDeleteReminderConfirmVisible(false);
+      } catch (error) {
+        console.log('Error deleting reminder:', error);
+      }
     }
   };
 
@@ -230,6 +245,14 @@ export default function CustomersPage() {
         itemType="service"
       />
 
+      <DeleteConfirmModal
+        visible={deleteReminderConfirmVisible}
+        onClose={() => setDeleteReminderConfirmVisible(false)}
+        onConfirm={handleDeleteReminder}
+        itemName={reminderToDelete?.id}
+        itemType="reminder"
+      />
+
       <ServiceModal
         visible={serviceModalVisible}
         onClose={() => setServiceModalVisible(false)}
@@ -262,12 +285,6 @@ export default function CustomersPage() {
           setServicesViewModalVisible(false);
           setDeleteServiceConfirmVisible(true);
         }}
-        onCreateReminder={(service: any) => {
-          setSelectedService(service);
-          fetchReminders(service.id);
-          setServicesViewModalVisible(false);
-          setReminderModalVisible(true);
-        }}
         onViewReminders={(service: any) => {
           setSelectedService(service);
           // fetchReminders(service.id);
@@ -287,19 +304,25 @@ export default function CustomersPage() {
         visible={reminderViewModalVisible}
         onClose={() => {
           setReminderViewModalVisible(false);
-          setReminders([]);
+          setSelectedService(
+            selectedService ? { ...selectedService, reminders: [] } : null
+          );
         }}
         reminders={selectedService?.reminders || []}
         onCreateNewReminder={() => {
           setReminderModalVisible(true);
         }}
         onEditReminder={(reminder) => {
-          setSelectedReminder(reminder);
+          setSelectedReminder({
+            ...reminder,
+            scheduledAt: parseDate(format(reminder.scheduledAt.toString().split('T')[0], 'yyyy-MM-dd')),
+          });
           setReminderViewModalVisible(false);
           setReminderModalVisible(true);
         }}
-        onDeleteReminder={(id) => {
-          console.log('Deleting reminder:', id);
+        onDeleteReminder={(reminder) => {
+          setReminderToDelete(reminder);
+          setDeleteReminderConfirmVisible(true);
         }}
         loading={loadingOnModal}
       >

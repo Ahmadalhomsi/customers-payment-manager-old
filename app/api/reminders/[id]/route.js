@@ -6,8 +6,8 @@ export async function GET(req, { params }) {
     const { id } = params;
 
     try {
-        const reminder = await prisma.reminder.findUnique({
-            where: { id: id },
+        const reminder = await prisma.reminder.findMany({
+            where: { serviceID: id },
         });
         return NextResponse.json(reminder, { status: 200 });
     } catch (error) {
