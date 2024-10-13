@@ -59,6 +59,7 @@ model Reminder {
   id          String         @id @default(cuid())
   scheduledAt DateTime
   status      ReminderStatus @default(SCHEDULED)
+  message     String?
 
   // Relations
   serviceID String

@@ -9,9 +9,11 @@ import CustomerModal from '../components/mainPage/CustomerModal';
 import DeleteConfirmModal from '../components/mainPage/DeleteConfirmModal';
 import ServiceModal from '../components/mainPage/ServiceModal';
 import ServicesViewModal from '../components/mainPage/ServicesViewModal';
-import { Customer, Service, CustomerFormData, ServiceFormData } from '../components/mainPage/types';
+import { Customer, Service, CustomerFormData, ServiceFormData, Reminder } from '../components/mainPage/types';
 import { format } from 'date-fns';
 import { parseDate } from '@internationalized/date';
+import ReminderModal from '../components/mainPage/ReminderModal';
+
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -26,6 +28,10 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [loadingOnModal, setLoadingOnModal] = useState(true);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Customer; direction: 'asc' | 'desc' } | null>(null);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
+  const [reminderModalVisible, setReminderModalVisible] = useState(false);
+
 
   useEffect(() => {
     fetchCustomers();
@@ -123,11 +129,38 @@ export default function CustomersPage() {
     }
   }
 
+  async function fetchReminders(serviceId: string) {
+    try {
+      const response = await axios.get(`/api/reminders/${serviceId}`);
+      setReminders(response.data);
+    } catch (error) {
+      console.log('Error fetching reminders:', error);
+    }
+  }
+
+  const handleReminderSubmit = async (reminderData: Partial<Reminder>) => {
+    try {
+      if (selectedReminder) {
+        await axios.put(`/api/reminders/${selectedReminder.id}`, reminderData);
+      } else if (selectedService) {
+        await axios.post('/api/reminders', { ...reminderData, serviceID: selectedService.id });
+      }
+      if (selectedService) {
+        await fetchReminders(selectedService.id);
+      }
+      setReminderModalVisible(false);
+    } catch (error) {
+      console.log('Error submitting reminder:', error);
+    }
+  };
+
 
   return (
     <div>
       <Button onPress={() => setCustomerModalVisible(true)} style={{ margin: 20, backgroundColor: "#f26000" }}>Create Customer</Button>
       <Button onPress={sendSMTPemail} style={{ margin: 20, backgroundColor: "#f26000" }}>Send an email</Button>
+      <Button onPress={() => setReminderModalVisible(true)} style={{ margin: 20, backgroundColor: "#f26000" }}>Create Reminder</Button>
+
 
       <CustomerTable
         customers={customers}
@@ -211,6 +244,13 @@ export default function CustomersPage() {
           setServicesViewModalVisible(false);
           setDeleteServiceConfirmVisible(true);
         }}
+      />
+
+      <ReminderModal
+        visible={reminderModalVisible}
+        onClose={() => setReminderModalVisible(false)}
+        onSubmit={handleReminderSubmit}
+        selectedReminder={selectedReminder}
       />
     </div>
   );

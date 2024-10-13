@@ -29,8 +29,6 @@ export async function middleware(req: NextRequest) {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     req.nextUrl.searchParams.set("user", JSON.stringify(payload));
 
-
-
     if (pathname.startsWith("/login")) {
       return NextResponse.redirect(new URL("/", req.url));
     }

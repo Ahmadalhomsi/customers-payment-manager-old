@@ -4,8 +4,6 @@
 import prisma from '@/lib/prisma';
 const { isSameDay } = require('date-fns');
 
-// import { sendPaymentReminder } from './mailer';
-
 // Schedule a payment
 export async function schedulePaymentReminders() {
 
@@ -15,7 +13,6 @@ export async function schedulePaymentReminders() {
         const payments = await prisma.reminder.findMany({
             where: {
                 status: "SCHEDULED"
-
             }
         });
         console.log('payments', payments);
