@@ -27,6 +27,7 @@ export async function GET() {
         });
         return NextResponse.json(customers, { status: 200 });
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });
     }
 }
