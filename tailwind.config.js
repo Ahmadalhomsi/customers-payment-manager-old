@@ -46,11 +46,13 @@ module.exports = {
         light: {
           colors: {
             current: "#f26000", // Custom primary color
+            danger: "#FD0000FF", // Custom danger color
           },
         },
         dark: {
           colors: {
             current: "#f26000", // Same custom color for dark theme
+            danger: "#FF0000FF", // Custom danger color
           },
         },
       },

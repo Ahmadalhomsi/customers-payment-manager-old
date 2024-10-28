@@ -18,7 +18,7 @@ export default function DeleteConfirmModal({ visible, onClose, onConfirm, itemNa
         <div style={{ padding: '20px' }}>
           <h2>Confirm Delete</h2>
           <p style={{ margin: 6 }}>Are you sure you want to delete {itemType} {itemName}?</p>
-          <Button color="danger" onPress={onConfirm} style={{ marginRight: 6 }}>Delete</Button>
+          <Button  onPress={onConfirm} style={{ marginRight: 6, backgroundColor: "#F20000FF", color: "#FFFFFFFF" }}>Delete</Button>
           <Button onPress={onClose}>Cancel</Button>
         </div>
       </ModalContent>
