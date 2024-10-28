@@ -304,9 +304,7 @@ export default function CustomersPage() {
         visible={reminderViewModalVisible}
         onClose={() => {
           setReminderViewModalVisible(false);
-          setSelectedService(
-            selectedService ? { ...selectedService, reminders: [] } : null
-          );
+          setSelectedService(null);
         }}
         reminders={selectedService?.reminders || []}
         onCreateNewReminder={() => {
