@@ -323,8 +323,7 @@ export default function CustomersPage() {
           setDeleteReminderConfirmVisible(true);
         }}
         loading={loadingOnModal}
-      >
-      </ReminderViewModal>
+      />
     </div>
   );
 }
